@@ -59,6 +59,8 @@ resource "google_container_node_pool" "default" {
       mode = "GKE_METADATA"
     }
 
+    spot = var.spot_vms
+
     shielded_instance_config {
       enable_secure_boot = true
     }

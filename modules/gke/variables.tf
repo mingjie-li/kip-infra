@@ -52,3 +52,9 @@ variable "release_channel" {
   type        = string
   default     = "REGULAR"
 }
+
+variable "spot_vms" {
+  description = "Use spot VMs for the default node pool"
+  type        = bool
+  default     = false
+}
