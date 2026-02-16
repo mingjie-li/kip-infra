@@ -1,4 +1,4 @@
-project_id     = "kip-dev"
+project_id     = "kip-dev-487617-t9"
 region         = "us-central1"
 environment    = "dev"
 machine_type   = "e2-medium"

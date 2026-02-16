@@ -6,12 +6,13 @@ variable "project_id" {
 variable "region" {
   description = "GCP region"
   type        = string
-  default     = "europe-west1"
+  default     = "us-central1"
 }
 
 variable "github_repo" {
   description = "GitHub repository in the format owner/repo"
   type        = string
+  default     = "mli/kip-infra"
 }
 
 variable "environments" {
