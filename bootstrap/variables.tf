@@ -12,7 +12,7 @@ variable "region" {
 variable "github_repo" {
   description = "GitHub repository in the format owner/repo"
   type        = string
-  default     = "mli/kip-infra"
+  default     = "mingjie-li/kip-infra"
 }
 
 variable "environments" {

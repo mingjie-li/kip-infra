@@ -33,4 +33,5 @@ module "gke" {
   machine_type   = var.machine_type
   min_node_count = var.min_node_count
   max_node_count = var.max_node_count
+  spot_vms       = true
 }
