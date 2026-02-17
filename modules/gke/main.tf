@@ -16,7 +16,7 @@ resource "google_container_cluster" "cluster" {
 
   node_config {
     disk_size_gb = var.disk_size_gb
-    spot = var.spot_vms
+    spot         = var.spot_vms
   }
 
   ip_allocation_policy {

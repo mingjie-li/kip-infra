@@ -24,6 +24,7 @@ resource "google_project_service" "apis" {
     "container.googleapis.com",
     "compute.googleapis.com",
     "storage.googleapis.com",
+    "artifactregistry.googleapis.com",
   ])
 
   project            = var.project_id
@@ -50,27 +51,43 @@ resource "google_storage_bucket" "tfstate" {
   }
 }
 
-# Service account for GitHub Actions
+# Service accounts for GitHub Actions — one per repo
 resource "google_service_account" "github_actions" {
-  account_id   = "github-actions-tf"
-  display_name = "GitHub Actions Terraform"
+  for_each = var.github_repos
+
+  account_id   = each.value.sa_id
+  display_name = "GitHub Actions - ${each.key}"
   project      = var.project_id
 }
 
-# Grant the SA permissions to manage infrastructure
-resource "google_project_iam_member" "github_actions_editor" {
-  project = var.project_id
-  role    = "roles/editor"
-  member  = "serviceAccount:${google_service_account.github_actions.email}"
+# Grant each SA its configured roles
+locals {
+  sa_role_bindings = flatten([
+    for repo, config in var.github_repos : [
+      for role in config.roles : {
+        key  = "${repo}:${role}"
+        repo = repo
+        role = role
+      }
+    ]
+  ])
 }
 
-# Grant the SA access to state buckets
+resource "google_project_iam_member" "github_actions_roles" {
+  for_each = { for b in local.sa_role_bindings : b.key => b }
+
+  project = var.project_id
+  role    = each.value.role
+  member  = "serviceAccount:${google_service_account.github_actions[each.value.repo].email}"
+}
+
+# Grant the infra SA access to state buckets
 resource "google_storage_bucket_iam_member" "tfstate_admin" {
   for_each = google_storage_bucket.tfstate
 
   bucket = each.value.name
   role   = "roles/storage.objectAdmin"
-  member = "serviceAccount:${google_service_account.github_actions.email}"
+  member = "serviceAccount:${google_service_account.github_actions["mingjie-li/kip-infra"].email}"
 }
 
 # Workload Identity Federation
@@ -93,16 +110,18 @@ resource "google_iam_workload_identity_pool_provider" "github" {
     "attribute.repository" = "assertion.repository"
   }
 
-  attribute_condition = "assertion.repository == \"${var.github_repo}\""
+  attribute_condition = "assertion.repository in [${join(", ", [for repo, _ in var.github_repos : "\"${repo}\""])}]"
 
   oidc {
     issuer_uri = "https://token.actions.githubusercontent.com"
   }
 }
 
-# Allow GitHub Actions to impersonate the service account
+# Allow each repo to impersonate its own service account
 resource "google_service_account_iam_member" "workload_identity_user" {
-  service_account_id = google_service_account.github_actions.name
+  for_each = var.github_repos
+
+  service_account_id = google_service_account.github_actions[each.key].name
   role               = "roles/iam.workloadIdentityUser"
-  member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github.name}/attribute.repository/${var.github_repo}"
+  member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github.name}/attribute.repository/${each.key}"
 }
