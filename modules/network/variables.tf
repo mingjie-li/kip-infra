@@ -30,3 +30,9 @@ variable "services_cidr" {
   type        = string
   default     = "10.8.0.0/20"
 }
+
+variable "proxy_subnet_cidr" {
+  description = "CIDR range for the regional managed proxy-only subnet (required for regional external LB via Gateway API)"
+  type        = string
+  default     = "10.8.16.0/23"
+}

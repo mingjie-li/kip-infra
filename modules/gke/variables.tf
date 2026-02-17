@@ -58,3 +58,9 @@ variable "spot_vms" {
   type        = bool
   default     = false
 }
+
+variable "enable_gateway_api" {
+  description = "Enable GKE Gateway API and provision a static regional IP for the load balancer"
+  type        = bool
+  default     = true
+}

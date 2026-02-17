@@ -24,6 +24,17 @@ resource "google_compute_subnetwork" "subnet" {
   private_ip_google_access = true
 }
 
+# Proxy-only subnet required for regional external Application Load Balancer (Gateway API)
+resource "google_compute_subnetwork" "proxy_only" {
+  name          = "kip-${var.environment}-proxy-subnet"
+  project       = var.project_id
+  region        = var.region
+  network       = google_compute_network.vpc.id
+  ip_cidr_range = var.proxy_subnet_cidr
+  purpose       = "REGIONAL_MANAGED_PROXY"
+  role          = "ACTIVE"
+}
+
 # Cloud Router for NAT
 resource "google_compute_router" "router" {
   name    = "kip-${var.environment}-router"

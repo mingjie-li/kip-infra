@@ -50,6 +50,10 @@ resource "google_container_cluster" "cluster" {
     enabled = true
   }
 
+  gateway_api_config {
+    channel = "CHANNEL_STANDARD"
+  }
+
   monitoring_config {
     managed_prometheus {
       enabled = false
@@ -58,6 +62,13 @@ resource "google_container_cluster" "cluster" {
   }
 
   deletion_protection = false
+}
+
+resource "google_compute_address" "gateway" {
+  count   = var.enable_gateway_api ? 1 : 0
+  name    = "kip-${var.environment}-gateway-ip"
+  project = var.project_id
+  region  = var.region
 }
 
 resource "google_container_node_pool" "default" {
