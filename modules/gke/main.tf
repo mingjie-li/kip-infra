@@ -14,6 +14,11 @@ resource "google_container_cluster" "cluster" {
     channel = var.release_channel
   }
 
+  node_config {
+    disk_size_gb = var.disk_size_gb
+    spot = var.spot_vms
+  }
+
   ip_allocation_policy {
     cluster_secondary_range_name  = "pods"
     services_secondary_range_name = "services"
