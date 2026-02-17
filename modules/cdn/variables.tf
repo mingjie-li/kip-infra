@@ -17,3 +17,8 @@ variable "zone_name" {
   description = "Cloud DNS managed zone name"
   type        = string
 }
+
+variable "storage_project_id" {
+  description = "GCP project ID where the static GCS bucket will be created"
+  type        = string
+}

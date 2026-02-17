@@ -3,6 +3,11 @@ variable "project_id" {
   type        = string
 }
 
+variable "storage_project_id" {
+  description = "GCP project ID for the static GCS bucket"
+  type        = string
+}
+
 variable "region" {
   description = "GCP region"
   type        = string

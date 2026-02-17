@@ -55,8 +55,9 @@ module "dns" {
 module "cdn" {
   source = "../../modules/cdn"
 
-  project_id  = var.project_id
-  environment = var.environment
-  domain      = "dev.kube-intel.com"
-  zone_name   = module.dns.zone_name
+  project_id         = var.project_id
+  storage_project_id = var.storage_project_id
+  environment        = var.environment
+  domain             = "dev.kube-intel.com"
+  zone_name          = module.dns.zone_name
 }

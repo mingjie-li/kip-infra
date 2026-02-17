@@ -1,14 +1,19 @@
 resource "google_storage_bucket" "static" {
   name                        = "kip-${var.environment}-static"
-  project                     = var.project_id
-  location                    = "EU"
+  project                     = var.storage_project_id
+  location                    = "US-EAST1"
   uniform_bucket_level_access = true
+  public_access_prevention    = "inherited"
 }
 
 resource "google_storage_bucket_iam_member" "public_read" {
   bucket = google_storage_bucket.static.name
   role   = "roles/storage.objectViewer"
   member = "allUsers"
+  depends_on = [ 
+    google_project_organization_policy.disable_domain_restricted_sharing,
+    google_project_organization_policy.disable_pap,
+  ]
 }
 
 resource "google_compute_global_address" "lb_ip" {
@@ -84,4 +89,21 @@ resource "google_dns_record_set" "root" {
   ttl          = 300
   managed_zone = var.zone_name
   rrdatas      = [google_compute_global_address.lb_ip.address]
+}
+resource "google_project_organization_policy" "disable_domain_restricted_sharing" {
+  project    = var.storage_project_id
+  constraint = "constraints/iam.allowedPolicyMemberDomains"
+
+  restore_policy {
+    default = true
+  }
+}
+
+resource "google_project_organization_policy" "disable_pap" {
+  project    = var.storage_project_id
+  constraint = "constraints/storage.publicAccessPrevention"
+
+  boolean_policy {
+    enforced = false
+  }
 }

@@ -91,6 +91,20 @@ resource "google_storage_bucket_iam_member" "tfstate_admin" {
   member = "serviceAccount:${google_service_account.github_actions["mingjie-li/kip-infra"].email}"
 }
 
+# Enable Storage API on the GCS project
+resource "google_project_service" "gcs_project_apis" {
+  project            = var.gcs_project_id
+  service            = "storage.googleapis.com"
+  disable_on_destroy = false
+}
+
+# Grant the infra SA storage admin on the GCS project so it can manage buckets
+resource "google_project_iam_member" "gcs_project_storage_admin" {
+  project = var.gcs_project_id
+  role    = "roles/storage.admin"
+  member  = "serviceAccount:${google_service_account.github_actions["mingjie-li/kip-infra"].email}"
+}
+
 # Workload Identity Federation
 resource "google_iam_workload_identity_pool" "github" {
   workload_identity_pool_id = "github-pool"
