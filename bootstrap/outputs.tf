@@ -3,9 +3,9 @@ output "workload_identity_provider" {
   value       = google_iam_workload_identity_pool_provider.github.name
 }
 
-output "service_account_email" {
-  description = "Service account email for GitHub Actions"
-  value       = google_service_account.github_actions.email
+output "service_account_emails" {
+  description = "Service account emails for GitHub Actions per repo"
+  value       = { for repo, sa in google_service_account.github_actions : repo => sa.email }
 }
 
 output "state_bucket_names" {
