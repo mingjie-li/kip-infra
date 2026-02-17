@@ -43,3 +43,20 @@ module "artifact_registry" {
   region      = var.region
   environment = var.environment
 }
+
+module "dns" {
+  source = "../../modules/dns"
+
+  project_id  = var.project_id
+  environment = var.environment
+  domain      = "dev.kube-intel.com"
+}
+
+module "cdn" {
+  source = "../../modules/cdn"
+
+  project_id  = var.project_id
+  environment = var.environment
+  domain      = "dev.kube-intel.com"
+  zone_name   = module.dns.zone_name
+}
