@@ -34,6 +34,9 @@ module "gke" {
   min_node_count = var.min_node_count
   max_node_count = var.max_node_count
   spot_vms       = true
+
+  gateway_domain   = "api-dev.kube-intel.com"
+  gateway_dns_zone = module.api_dns.zone_name
 }
 
 module "artifact_registry" {
@@ -44,6 +47,13 @@ module "artifact_registry" {
   environment = var.environment
 }
 
+module "api_dns" {
+  source = "../../modules/dns"
+
+  project_id  = var.project_id
+  environment = "${var.environment}-api"
+  domain      = "api-dev.kube-intel.com"
+}
 module "dns" {
   source = "../../modules/dns"
 

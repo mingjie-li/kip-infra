@@ -64,3 +64,21 @@ variable "enable_gateway_api" {
   type        = bool
   default     = true
 }
+
+variable "gateway_domain" {
+  description = "Domain for the Gateway TLS certificate (e.g. api.dev.kube-intel.com). When set, a Certificate Manager cert and certmap are created."
+  type        = string
+  default     = ""
+}
+
+variable "gateway_dns_zone" {
+  description = "Cloud DNS managed zone name for Gateway TLS DNS authorization (e.g. kip-dev-zone)"
+  type        = string
+  default     = ""
+}
+
+variable "gateway_dns_project_id" {
+  description = "Project ID where the Cloud DNS zone lives. Defaults to var.project_id if empty."
+  type        = string
+  default     = ""
+}

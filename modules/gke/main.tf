@@ -71,6 +71,63 @@ resource "google_compute_address" "gateway" {
   region  = var.region
 }
 
+locals {
+  create_gateway_cert = var.enable_gateway_api && var.gateway_domain != ""
+}
+
+resource "google_project_service" "certificate_manager" {
+  count   = local.create_gateway_cert ? 1 : 0
+  project = var.project_id
+  service = "certificatemanager.googleapis.com"
+
+  disable_on_destroy = false
+}
+
+resource "google_certificate_manager_dns_authorization" "gateway" {
+  depends_on = [google_project_service.certificate_manager]
+  count   = local.create_gateway_cert ? 1 : 0
+  name    = "kip-${var.environment}-gateway-dns-auth"
+  project = var.project_id
+  domain  = var.gateway_domain
+}
+
+resource "google_dns_record_set" "gateway_dns_auth" {
+  count        = local.create_gateway_cert ? 1 : 0
+  name         = google_certificate_manager_dns_authorization.gateway[0].dns_resource_record[0].name
+  project      = var.gateway_dns_project_id != "" ? var.gateway_dns_project_id : var.project_id
+  type         = google_certificate_manager_dns_authorization.gateway[0].dns_resource_record[0].type
+  ttl          = 300
+  managed_zone = var.gateway_dns_zone
+  rrdatas      = [google_certificate_manager_dns_authorization.gateway[0].dns_resource_record[0].data]
+}
+
+resource "google_certificate_manager_certificate" "gateway" {
+  count   = local.create_gateway_cert ? 1 : 0
+  name    = "kip-${var.environment}-gateway-cert"
+  project = var.project_id
+  scope   = "DEFAULT" # certificate maps require DEFAULT scope
+
+  managed {
+    domains            = [var.gateway_domain]
+    dns_authorizations = [google_certificate_manager_dns_authorization.gateway[0].id]
+  }
+}
+
+resource "google_certificate_manager_certificate_map" "gateway" {
+  count   = local.create_gateway_cert ? 1 : 0
+  name    = "kip-${var.environment}-gateway-certmap"
+  project = var.project_id
+}
+
+resource "google_certificate_manager_certificate_map_entry" "gateway" {
+  count        = local.create_gateway_cert ? 1 : 0
+  name         = "kip-${var.environment}-gateway-certmap-entry"
+  project      = var.project_id
+  map          = google_certificate_manager_certificate_map.gateway[0].name
+  certificates = [google_certificate_manager_certificate.gateway[0].id]
+  hostname     = var.gateway_domain
+}
+
 resource "google_container_node_pool" "default" {
   name     = "kip-${var.environment}-default-pool"
   project  = var.project_id

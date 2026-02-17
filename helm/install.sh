@@ -3,7 +3,7 @@ helm repo update
 
 
 helm upgrade signoz signoz/signoz \
-   --namespace kip-002 --create-namespace \
+   --namespace kip-001 --create-namespace \
    --wait \
    --timeout 1h \
    -f values.yaml

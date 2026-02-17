@@ -24,3 +24,8 @@ output "gateway_ip_name" {
   description = "Name of the static IP resource (reference in K8s Gateway annotation: networking.gke.io/load-balancer-ip)"
   value       = var.enable_gateway_api ? google_compute_address.gateway[0].name : null
 }
+
+output "gateway_certmap_name" {
+  description = "Certificate Manager certificate map name (reference in K8s Gateway annotation: networking.gke.io/certmap)"
+  value       = local.create_gateway_cert ? google_certificate_manager_certificate_map.gateway[0].name : null
+}
