@@ -44,7 +44,7 @@ variable "max_node_count" {
 variable "disk_size_gb" {
   description = "Disk size in GB for each node"
   type        = number
-  default     = 50
+  default     = 20
 }
 
 variable "release_channel" {
