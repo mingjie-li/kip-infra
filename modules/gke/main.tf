@@ -1,3 +1,15 @@
+resource "google_service_account" "nodes" {
+  account_id   = "kip-${var.environment}-gke-nodes"
+  display_name = "GKE Node Pool SA (${var.environment})"
+  project      = var.project_id
+}
+
+resource "google_project_iam_member" "nodes_ar_reader" {
+  project = var.project_id
+  role    = "roles/artifactregistry.reader"
+  member  = "serviceAccount:${google_service_account.nodes.email}"
+}
+
 resource "google_container_cluster" "cluster" {
   name     = "kip-${var.environment}-cluster"
   project  = var.project_id
@@ -38,6 +50,13 @@ resource "google_container_cluster" "cluster" {
     enabled = true
   }
 
+  monitoring_config {
+    managed_prometheus {
+      enabled = false
+    }
+    enable_components = []
+  }
+
   deletion_protection = false
 }
 
@@ -53,8 +72,9 @@ resource "google_container_node_pool" "default" {
   }
 
   node_config {
-    machine_type = var.machine_type
-    disk_size_gb = var.disk_size_gb
+    machine_type    = var.machine_type
+    disk_size_gb    = var.disk_size_gb
+    service_account = google_service_account.nodes.email
 
     oauth_scopes = [
       "https://www.googleapis.com/auth/cloud-platform",

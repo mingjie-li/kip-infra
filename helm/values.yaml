@@ -1,0 +1,15 @@
+global:
+  storageClass: standard-rwo
+
+clickhouse:
+  installCustomStorageClass: true
+
+postgresql:
+  enabled: true
+signoz:
+  image: 
+    registry: us-east1-docker.pkg.dev
+    repository: kip-dev-487617-t9/kip-dev/kip
+    tag: main-bd0d0f8
+  env:
+    signoz_web_enabled: "false"
