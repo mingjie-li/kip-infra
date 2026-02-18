@@ -3,6 +3,13 @@ global:
 
 clickhouse:
   installCustomStorageClass: true
+  resources:
+    requests:
+      cpu: 1000m
+      memory: 2Gi
+    limits:
+      cpu: 1500m
+      memory: 4Gi
 
 postgresql:
   enabled: true

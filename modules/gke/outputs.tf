@@ -16,13 +16,13 @@ output "cluster_ca_certificate" {
 }
 
 output "gateway_ip" {
-  description = "Static regional IP for the GKE Gateway load balancer"
-  value       = var.enable_gateway_api ? google_compute_address.gateway[0].address : null
+  description = "Static global IP for the GKE Gateway load balancer"
+  value       = var.enable_gateway_api ? google_compute_global_address.gateway[0].address : null
 }
 
 output "gateway_ip_name" {
   description = "Name of the static IP resource (reference in K8s Gateway annotation: networking.gke.io/load-balancer-ip)"
-  value       = var.enable_gateway_api ? google_compute_address.gateway[0].name : null
+  value       = var.enable_gateway_api ? google_compute_global_address.gateway[0].name : null
 }
 
 output "gateway_certmap_name" {

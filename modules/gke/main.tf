@@ -64,11 +64,10 @@ resource "google_container_cluster" "cluster" {
   deletion_protection = false
 }
 
-resource "google_compute_address" "gateway" {
+resource "google_compute_global_address" "gateway" {
   count   = var.enable_gateway_api ? 1 : 0
   name    = "kip-${var.environment}-gateway-ip"
   project = var.project_id
-  region  = var.region
 }
 
 locals {
@@ -101,6 +100,16 @@ resource "google_dns_record_set" "gateway_dns_auth" {
   rrdatas      = [google_certificate_manager_dns_authorization.gateway[0].dns_resource_record[0].data]
 }
 
+resource "google_dns_record_set" "gateway_wildcard" {
+  count        = var.enable_gateway_api ? 1 : 0
+  name         = "*.${var.gateway_domain}."
+  project      = var.gateway_dns_project_id != "" ? var.gateway_dns_project_id : var.project_id
+  type         = "A"
+  ttl          = 300
+  managed_zone = var.gateway_dns_zone
+  rrdatas      = [google_compute_global_address.gateway[0].address]
+}
+
 resource "google_certificate_manager_certificate" "gateway" {
   count   = local.create_gateway_cert ? 1 : 0
   name    = "kip-${var.environment}-gateway-cert"
@@ -108,7 +117,7 @@ resource "google_certificate_manager_certificate" "gateway" {
   scope   = "DEFAULT" # certificate maps require DEFAULT scope
 
   managed {
-    domains            = [var.gateway_domain]
+    domains            = ["*.${var.gateway_domain}"]
     dns_authorizations = [google_certificate_manager_dns_authorization.gateway[0].id]
   }
 }
@@ -125,7 +134,7 @@ resource "google_certificate_manager_certificate_map_entry" "gateway" {
   project      = var.project_id
   map          = google_certificate_manager_certificate_map.gateway[0].name
   certificates = [google_certificate_manager_certificate.gateway[0].id]
-  hostname     = var.gateway_domain
+  hostname     = "*.${var.gateway_domain}"
 }
 
 resource "google_container_node_pool" "default" {
