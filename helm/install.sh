@@ -44,5 +44,73 @@ spec:
       port: 8080
 EOF
 
+kubectl apply -f - <<EOF
+apiVersion: networking.gke.io/v1
+kind: HealthCheckPolicy
+metadata:
+  name: signoz-health
+  namespace: ${NAMESPACE}
+spec:
+  targetRef:
+    group: ""
+    kind: Service
+    name: signoz
+  default:
+   config:
+      type: HTTP
+      httpHealthCheck:
+        port: 8080
+        requestPath: /api/v1/health
+   checkIntervalSec: 15
+   timeoutSec: 5
+   healthyThreshold: 1
+   unhealthyThreshold: 2
+EOF
+
+
+kubectl apply -f - <<EOF
+apiVersion: networking.gke.io/v1
+kind: HealthCheckPolicy
+metadata:
+  name: otel-collector-health
+  namespace: ${NAMESPACE}
+spec:
+  targetRef:
+    group: ""
+    kind: Service
+    name: signoz-otel-collector
+  default:
+   config:
+      type: GRPC
+      grpcHealthCheck:
+        port: 4317
+   checkIntervalSec: 15
+   timeoutSec: 5
+   healthyThreshold: 1
+   unhealthyThreshold: 2
+EOF
+
+kubectl apply -f - <<EOF
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: otel-collector
+  namespace: ${NAMESPACE}
+spec:
+  parentRefs:
+  - name: ${GATEWAY_NAME}
+    namespace: ${GATEWAY_NAMESPACE}
+  hostnames:
+  - "${PREFIX}-otel.${GATEWAY_DOMAIN}"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: signoz-otel-collector
+      port: 4317
+EOF
+
 echo "SigNoz installed in namespace '${NAMESPACE}'"
 echo "HTTPRoute created → https://${PREFIX}.${GATEWAY_DOMAIN}"

@@ -15,7 +15,6 @@ metadata:
   name: external-gateway-001
   namespace: gateway-api
   annotations:
-    networking.gke.io/load-balancer-ip: kip-dev-gateway-ip
     networking.gke.io/certmap: kip-dev-gateway-certmap
 spec:
   gatewayClassName: gke-l7-global-external-managed
@@ -23,3 +22,9 @@ spec:
   - name: https
     port: 443
     protocol: HTTPS
+    allowedRoutes:
+      namespaces:
+        from: All
+  addresses:
+  - type: NamedAddress
+    value: kip-dev-gateway-ip
