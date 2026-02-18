@@ -20,3 +20,22 @@ signoz:
     tag: main-3c96838
   env:
     signoz_web_enabled: "false"
+
+otelCollector:
+  config:
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:4317
+            max_recv_msg_size_mib: 16
+            auth:
+              authenticator: bearertokenauth
+          http:
+            endpoint: 0.0.0.0:4318
+    extensions:
+      bearertokenauth:
+        scheme: "Bearer"
+        token: "randomtoken"
+    service:
+      extensions: [health_check, zpages, pprof, bearertokenauth]

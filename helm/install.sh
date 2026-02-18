@@ -91,6 +91,27 @@ spec:
 EOF
 
 kubectl apply -f - <<EOF
+apiVersion: v1
+kind: Service
+metadata:
+  name: signoz-otel-collector-grpc
+  namespace: ${NAMESPACE}
+spec:
+  ports:
+  - name: otlp
+    port: 4317
+    protocol: TCP
+    targetPort: otlp
+    appProtocol: kubernetes.io/h2c
+  selector:
+    app.kubernetes.io/component: otel-collector
+    app.kubernetes.io/instance: signoz
+    app.kubernetes.io/name: signoz
+  sessionAffinity: None
+  type: ClusterIP
+EOF
+
+kubectl apply -f - <<EOF
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
@@ -108,7 +129,7 @@ spec:
         type: PathPrefix
         value: /
     backendRefs:
-    - name: signoz-otel-collector
+    - name: signoz-otel-collector-grpc
       port: 4317
 EOF
 
