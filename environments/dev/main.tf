@@ -27,6 +27,7 @@ module "gke" {
 
   project_id     = var.project_id
   region         = var.region
+  zone           = var.zone
   environment    = var.environment
   network_id     = module.network.network_id
   subnet_id      = module.network.subnet_id

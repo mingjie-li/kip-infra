@@ -10,10 +10,14 @@ resource "google_project_iam_member" "nodes_ar_reader" {
   member  = "serviceAccount:${google_service_account.nodes.email}"
 }
 
+locals {
+  location = var.zone != "" ? var.zone : var.region
+}
+
 resource "google_container_cluster" "cluster" {
   name     = "kip-${var.environment}-cluster"
   project  = var.project_id
-  location = var.region
+  location = local.location
 
   network    = var.network_id
   subnetwork = var.subnet_id
@@ -52,13 +56,6 @@ resource "google_container_cluster" "cluster" {
 
   gateway_api_config {
     channel = "CHANNEL_STANDARD"
-  }
-
-  monitoring_config {
-    managed_prometheus {
-      enabled = false
-    }
-    enable_components = []
   }
 
   deletion_protection = false
@@ -140,7 +137,7 @@ resource "google_certificate_manager_certificate_map_entry" "gateway" {
 resource "google_container_node_pool" "default" {
   name     = "kip-${var.environment}-default-pool"
   project  = var.project_id
-  location = var.region
+  location = local.location
   cluster  = google_container_cluster.cluster.name
 
   autoscaling {

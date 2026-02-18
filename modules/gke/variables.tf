@@ -8,6 +8,12 @@ variable "region" {
   type        = string
 }
 
+variable "zone" {
+  description = "GCP zone for zonal cluster (e.g. us-east1-b). When set, creates a zonal cluster instead of regional."
+  type        = string
+  default     = ""
+}
+
 variable "environment" {
   description = "Environment name (dev, staging, prod)"
   type        = string
