@@ -72,13 +72,13 @@ kubectl apply -f - <<EOF
 apiVersion: networking.gke.io/v1
 kind: HealthCheckPolicy
 metadata:
-  name: otel-collector-health
+  name: otel-collector-grpc-health
   namespace: ${NAMESPACE}
 spec:
   targetRef:
     group: ""
     kind: Service
-    name: signoz-otel-collector
+    name: signoz-otel-collector-grpc
   default:
    config:
       type: GRPC
