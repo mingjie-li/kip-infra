@@ -4,6 +4,12 @@ resource "google_service_account" "nodes" {
   project      = var.project_id
 }
 
+resource "google_project_iam_member" "nodes_sa" {
+  project = var.project_id
+  role    = "roles/container.defaultNodeServiceAccount"
+  member  = "serviceAccount:${google_service_account.nodes.email}"
+}
+
 resource "google_project_iam_member" "nodes_ar_reader" {
   project = var.project_id
   role    = "roles/artifactregistry.reader"

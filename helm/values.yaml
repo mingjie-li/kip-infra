@@ -6,10 +6,10 @@ clickhouse:
   resources:
     requests:
       cpu: 1000m
-      memory: 2Gi
+      memory: 4Gi
     limits:
       cpu: 1500m
-      memory: 4Gi
+      memory: 8Gi
 
 postgresql:
   enabled: true
@@ -17,9 +17,17 @@ signoz:
   image: 
     registry: us-east1-docker.pkg.dev
     repository: kip-dev-487617-t9/kip-dev/kip
-    tag: main-3c96838
+    tag: main-9faeb92
   env:
     signoz_web_enabled: "false"
+    signoz_tokenizer_jwt_secret: "strongsecret001."
+    signoz_emailing_enabled: "true"
+    signoz_emailing_templates_directory: "/root/templates"
+    "signoz_emailing_smtp_address": "smtp-relay.brevo.com:587"
+    "signoz_emailing_smtp_from": "noreply@kube-intel.com"
+    "signoz_emailing_smtp_auth_username": "a2db5d001@smtp-brevo.com"
+    "signoz_emailing_smtp_auth_password": "E3RrWVwFqcZT06xd"
+    # signoz_instrumentation_logs_level: "debug"
 
 otelCollector:
   config:
