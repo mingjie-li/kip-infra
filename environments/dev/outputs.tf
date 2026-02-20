@@ -13,3 +13,9 @@ output "network_name" {
   description = "VPC network name"
   value       = module.network.network_name
 }
+
+output "billing_api_key" {
+  value       = module.kip.billing_api_key
+  description = "API key for accessing Google Cloud Billing API"
+  sensitive   = true
+}

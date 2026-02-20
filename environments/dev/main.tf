@@ -12,6 +12,8 @@ terraform {
 provider "google" {
   project = var.project_id
   region  = var.region
+  user_project_override = true
+  billing_project       = var.project_id
 }
 
 module "network" {
@@ -71,4 +73,10 @@ module "cdn" {
   environment        = var.environment
   domain             = "dev.kube-intel.com"
   zone_name          = module.dns.zone_name
+}
+
+module "kip" {
+  source = "../../modules/kip"
+
+  project_id         = var.project_id
 }
